@@ -1,13 +1,17 @@
 package objD.server;
 
 
+import objD.protocol.client.ClientMessage;
+import objD.protocol.server.ServerMessage;
+
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class AddClientsThread extends Thread {
 
-    private int clientIdCounter = 0;
     private final ServerApp serverContext;
 
     public AddClientsThread(ServerApp serverContext) {
@@ -21,9 +25,10 @@ public class AddClientsThread extends Thread {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
 
-                System.out.println("accepting client # " + clientIdCounter);
-                serverContext.addNewClient(clientSocket, clientIdCounter);
-                clientIdCounter++;
+                System.out.println("accepting client # ");
+                ObjectInputStream is = new ObjectInputStream(clientSocket.getInputStream());
+                ObjectOutputStream os = new ObjectOutputStream(clientSocket.getOutputStream());
+                serverContext.addNewClient(new SocketAdapter(clientSocket, is, os));
                 System.out.println("waiting for new client");
             }
 

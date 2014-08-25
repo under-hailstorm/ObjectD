@@ -1,6 +1,5 @@
 package objD.server;
 
-import objD.protocol.server.ConnectionRefused;
 import objD.protocol.server.GatheringContext;
 import objD.protocol.server.ServerMessage;
 
@@ -19,6 +18,11 @@ public class ClientManager {
             }
         }
         return false;
+    }
+
+    public void addToObservers(ListenClientThread thread) {
+        thread.setTeam(Teams.OBSERVERS);
+        allClients.add(thread);
     }
 
     public void addToLowTeam(ListenClientThread thread) {
@@ -99,6 +103,7 @@ public class ClientManager {
     }
 
     public void notifyAllSubscribers(ServerMessage context) {
+        System.out.println("notify " + context.getClass().getCanonicalName());
         for (ListenClientThread state : allClients) {
             state.notifyContextModified(context);
         }

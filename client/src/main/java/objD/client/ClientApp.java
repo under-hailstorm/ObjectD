@@ -6,12 +6,13 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import objD.client.states.ClientState;
 import objD.client.states.ConnectionState;
+import objD.protocol.server.ServerMessage;
 
 public class ClientApp extends Application {
 
     public static final String APP_NAME = "Cool app ";
     private Scene scene;
-    private ClientState currentState;
+    private volatile ClientState currentState;
     private Stage primaryStage;
     private String clientName;
 
@@ -28,7 +29,8 @@ public class ClientApp extends Application {
         scene.getRoot().requestLayout();
     }
 
-    public void notifyState(Object o) {
+    public void notifyState(ServerMessage o) {
+        System.out.println("notify " + currentState.getClass().getCanonicalName() + " with " + o.getClass().getCanonicalName());
         currentState.updatePane(o);
     }
 

@@ -1,12 +1,11 @@
 package objD.server.states;
 
 import objD.protocol.server.ServerMessage;
-
-import java.net.Socket;
+import objD.server.SocketAdapter;
 
 public interface ServerState {
 
-    void addNewClient(Socket clientSocket, int clientIdCounter);
+    void addNewClient(SocketAdapter socketAdapter);
 
     ServerMessage processActions();
 }

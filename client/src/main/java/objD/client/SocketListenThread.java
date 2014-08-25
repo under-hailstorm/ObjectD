@@ -1,18 +1,18 @@
 package objD.client;
 
 import javafx.application.Platform;
+import objD.protocol.server.ServerMessage;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 
 public class SocketListenThread extends Thread {
-    private final ClientApp app;
-    private final ObjectInputStream is;
+    private final ClientApp clientApp;
+    private final SocketAdapter socketAdapter;
 
-    public SocketListenThread(ClientApp app, ObjectInputStream is) {
-        this.app = app;
-        this.is = is;
+    public SocketListenThread(ClientApp clientApp, SocketAdapter socketAdapter) {
+        this.clientApp = clientApp;
+        this.socketAdapter = socketAdapter;
     }
 
     @Override
@@ -20,11 +20,12 @@ public class SocketListenThread extends Thread {
         boolean connected = true;
         while (connected) {
             try {
-                final Object o = is.readObject();
+                final ServerMessage o = socketAdapter.readObject();
+                System.out.println("recieved mesage of type " + o.getClass().getCanonicalName());
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
-                        app.notifyState(o);
+                        clientApp.notifyState(o);
                     }
                 });
 

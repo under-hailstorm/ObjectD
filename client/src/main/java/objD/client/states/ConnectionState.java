@@ -10,10 +10,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import objD.client.ClientApp;
+import objD.client.SocketAdapter;
 import objD.client.SocketListenThread;
 import objD.protocol.server.ConnectionRefused;
 import objD.protocol.server.GatheringContext;
 import objD.protocol.client.HelloServer;
+import objD.protocol.server.ServerMessage;
+
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -28,8 +31,7 @@ public class ConnectionState implements ClientState {
     private final VBox pane = new VBox();
 
     private final ClientApp clientApp;
-    private Socket clientSocket;
-    private ObjectOutputStream os;
+    private SocketAdapter socketAdapter;
 
     public ConnectionState(ClientApp app) {
         clientApp = app;
@@ -69,14 +71,14 @@ public class ConnectionState implements ClientState {
     }
 
     @Override
-    public void updatePane(Object fromServer) {
+    public void updatePane(ServerMessage fromServer) {
         if (fromServer instanceof ConnectionRefused) {
             final ConnectionRefused cr = (ConnectionRefused) fromServer;
             errorLabel.setText(cr.getReason() + " Default port is " + DEFAULT_SERVER_PORT);
         }
         if (fromServer instanceof GatheringContext) {
             try {
-                GatheringState gathering = new GatheringState(clientApp, clientSocket, os);
+                GatheringState gathering = new GatheringState(clientApp, socketAdapter);
                 gathering.updatePane(fromServer);
                 clientApp.setTitle(ClientApp.APP_NAME + " " + nameField.getText());
                 clientApp.setClientName(nameField.getText());
@@ -115,12 +117,14 @@ public class ConnectionState implements ClientState {
             }
             try {
 
-                clientSocket = new Socket(host, port);
-                os = new ObjectOutputStream(clientSocket.getOutputStream());
+                Socket clientSocket = new Socket(host, port);
+
+                ObjectOutputStream os = new ObjectOutputStream(clientSocket.getOutputStream());
                 os.writeObject(new HelloServer(nameField.getText()));
-                os.flush();
                 ObjectInputStream is = new ObjectInputStream(clientSocket.getInputStream());
-                SocketListenThread thread = new SocketListenThread(clientApp, is);
+                socketAdapter = new SocketAdapter(clientSocket, is, os);
+
+                SocketListenThread thread = new SocketListenThread(clientApp, socketAdapter);
                 thread.setDaemon(true);
                 thread.start();
             } catch (IOException e) {

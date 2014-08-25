@@ -7,7 +7,7 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>server</module>
-        <module>protocol</module>
+        <module>commons</module>
         <module>client</module>
     </modules>
     <packaging>pom</packaging>
@@ -35,7 +35,7 @@
         <dependencies>
             <dependency>
                 <groupId>objD</groupId>
-                <artifactId>protocol</artifactId>
+                <artifactId>commons</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

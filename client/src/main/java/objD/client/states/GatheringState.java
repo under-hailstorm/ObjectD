@@ -7,24 +7,24 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import objD.client.ClientApp;
+import objD.client.SocketAdapter;
+import objD.protocol.client.StartRequest;
 import objD.protocol.server.GatheringContext;
 import objD.protocol.client.ToObservers;
 import objD.protocol.client.ToTeam1;
 import objD.protocol.client.ToTeam2;
 
+import objD.protocol.server.ServerMessage;
+import objD.protocol.server.StartOk;
+
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
 import java.util.List;
 
 public class GatheringState implements ClientState {
@@ -32,9 +32,9 @@ public class GatheringState implements ClientState {
     public static final double DEFAULT_WIDTH = 600;
     public static final double DEFAULT_HEIGHT = 600;
 
-    private final ClientApp app;
-    private final Socket clientSocket;
-    private final ObjectOutputStream os;
+    private final ClientApp clientApp;
+    private final SocketAdapter socketAdapter;
+
     private final GridPane pane = new GridPane();
 
     private final TableView team1;
@@ -47,10 +47,9 @@ public class GatheringState implements ClientState {
 
     private final Button startButton = new Button();
 
-    public GatheringState(ClientApp app, Socket clientSocket, ObjectOutputStream os) throws IOException {
-        this.app = app;
-        this.clientSocket = clientSocket;
-        this.os = os;
+    public GatheringState(ClientApp clientApp, SocketAdapter socketAdapter) throws IOException {
+        this.clientApp = clientApp;
+        this.socketAdapter = socketAdapter;
 
         team1 = aTable("Team1");
         team2 = aTable("Team2");
@@ -109,7 +108,7 @@ public class GatheringState implements ClientState {
     }
 
     @Override
-    public void updatePane(Object fromServer) {
+    public void updatePane(ServerMessage fromServer) {
 
         if (fromServer instanceof GatheringContext) {
 
@@ -126,24 +125,29 @@ public class GatheringState implements ClientState {
 
             toTeam1.setDisable(false);
             for (ClientData clientData : team1Members) {
-                if (clientData.getName().equals(app.getClientName())) {
+                if (clientData.getName().equals(clientApp.getClientName())) {
                     toTeam1.setDisable(true);
                 }
             }
 
             toTeam2.setDisable(false);
             for (ClientData clientData : team2Members) {
-                if (clientData.getName().equals(app.getClientName())) {
+                if (clientData.getName().equals(clientApp.getClientName())) {
                     toTeam2.setDisable(true);
                 }
             }
 
             toObservers.setDisable(false);
             for (ClientData clientData : obsMembers) {
-                if (clientData.getName().equals(app.getClientName())) {
+                if (clientData.getName().equals(clientApp.getClientName())) {
                     toObservers.setDisable(true);
                 }
             }
+        }
+        if (fromServer instanceof StartOk) {
+            System.out.println("getting StartOk");
+            StartedState startedState = new StartedState(clientApp, socketAdapter);
+            clientApp.setCurrentState(startedState);
         }
     }
 
@@ -160,8 +164,7 @@ public class GatheringState implements ClientState {
         @Override
         public void handle(ActionEvent actionEvent) {
             try {
-                os.writeObject(new ToTeam1());
-                os.flush();
+                socketAdapter.writeObject(new ToTeam1());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -174,8 +177,7 @@ public class GatheringState implements ClientState {
         @Override
         public void handle(ActionEvent actionEvent) {
             try {
-                os.writeObject(new ToTeam2());
-                os.flush();
+                socketAdapter.writeObject(new ToTeam2());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -188,8 +190,7 @@ public class GatheringState implements ClientState {
         @Override
         public void handle(ActionEvent actionEvent) {
             try {
-                os.writeObject(new ToObservers());
-                os.flush();
+                socketAdapter.writeObject(new ToObservers());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -201,8 +202,7 @@ public class GatheringState implements ClientState {
         @Override
         public void handle(ActionEvent actionEvent) {
             try {
-                //os.writeObject(new ToObservers());
-                os.flush();
+                socketAdapter.writeObject(new StartRequest());
             } catch (IOException e) {
                 e.printStackTrace();
             }

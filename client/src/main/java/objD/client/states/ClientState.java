@@ -1,10 +1,11 @@
 package objD.client.states;
 
 import javafx.scene.layout.Pane;
+import objD.protocol.server.ServerMessage;
 
 public interface ClientState {
 
     Pane getRootPane();
 
-    void updatePane(Object fromServer);
+    void updatePane(ServerMessage fromServer);
 }

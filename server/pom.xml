@@ -20,7 +20,7 @@
     <dependencies>
         <dependency>
             <groupId>objD</groupId>
-            <artifactId>protocol</artifactId>
+            <artifactId>commons</artifactId>
         </dependency>
     </dependencies>
 

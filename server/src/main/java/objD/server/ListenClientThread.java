@@ -1,16 +1,9 @@
 package objD.server;
 
 import objD.protocol.client.ClientMessage;
-import objD.protocol.server.GatheringContext;
-import objD.protocol.client.ToObservers;
-import objD.protocol.client.ToTeam1;
-import objD.protocol.client.ToTeam2;
 import objD.protocol.server.ServerMessage;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,11 +12,8 @@ public class ListenClientThread extends Thread {
     private Map<Class, Long> timeFilter = new HashMap<>();
     private Map<Class, Long> lastPushed = new HashMap<>();
     private boolean needStop = false;
-    private final Socket clientSocket;
-    private final ObjectOutputStream os;
-    private final ObjectInputStream is;
+    private final SocketAdapter socketAdapter;
     private final ServerApp serverContext;
-    private int clientId;
     private String clientName;
     private Teams team;
 
@@ -39,14 +29,6 @@ public class ListenClientThread extends Thread {
         this.needStop = needStop;
     }
 
-    public int getClientId() {
-        return clientId;
-    }
-
-    public void setClientId(int clientId) {
-        this.clientId = clientId;
-    }
-
     public String getClientName() {
         return clientName;
     }
@@ -55,11 +37,9 @@ public class ListenClientThread extends Thread {
         this.clientName = clientName;
     }
 
-    public ListenClientThread(Socket clientSocket, ObjectOutputStream os, ObjectInputStream is, ServerApp serverContext) {
-        this.clientSocket = clientSocket;
+    public ListenClientThread(SocketAdapter socketAdapter, ServerApp serverContext) {
+        this.socketAdapter = socketAdapter;
         this.serverContext = serverContext;
-        this.os = os;
-        this.is = is;
     }
 
     @Override
@@ -67,12 +47,13 @@ public class ListenClientThread extends Thread {
         try {
 
             while (!needStop) {
-                Object o = is.readObject();
+                ClientMessage o = socketAdapter.readObject();
                 Class actionType = o.getClass();
                 Long lastPush = lastPushed.get(actionType);
                 Long constraint = timeFilter.get(actionType);
                 if (lastPush == null || constraint == null || (System.currentTimeMillis() - lastPush > constraint)) {
-                    serverContext.addAction((ClientMessage) o, clientName);
+                    System.out.println("add action " + o.getClass().getCanonicalName() + " from client " + clientName);
+                    serverContext.addAction(o, clientName);
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
@@ -81,8 +62,7 @@ public class ListenClientThread extends Thread {
             System.out.println("Exiting client " + clientName);
             serverContext.removeClient(clientName);
             try {
-                os.close();
-                clientSocket.close();
+                socketAdapter.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -91,8 +71,7 @@ public class ListenClientThread extends Thread {
 
     public synchronized void notifyContextModified(ServerMessage context) {
         try {
-            os.writeObject(context);
-            os.flush();
+            socketAdapter.writeObject(context);
         } catch (IOException e) {
             e.printStackTrace();
         }

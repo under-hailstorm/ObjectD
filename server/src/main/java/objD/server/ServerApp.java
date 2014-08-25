@@ -6,7 +6,6 @@ import objD.protocol.server.ServerMessage;
 import objD.server.states.GatheringState;
 import objD.server.states.ServerState;
 
-import java.net.Socket;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
@@ -70,8 +69,8 @@ public class ServerApp {
     }
 
 
-    public synchronized void addNewClient(Socket clientSocket, int clientIdCounter) {
-        serverState.addNewClient(clientSocket, clientIdCounter);
+    public synchronized void addNewClient(SocketAdapter socketAdapter) {
+        serverState.addNewClient(socketAdapter);
         clientManager.notifyAllSubscribers(clientManager.toGatheringContext());
     }
 
