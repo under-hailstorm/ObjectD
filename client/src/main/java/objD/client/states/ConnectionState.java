@@ -16,6 +16,8 @@ import objD.protocol.server.ConnectionRefused;
 import objD.protocol.server.GatheringContext;
 import objD.protocol.client.HelloServer;
 import objD.protocol.server.ServerMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.io.IOException;
@@ -24,6 +26,9 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class ConnectionState implements ClientState {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ConnectionState.class);
+
     private static final int DEFAULT_SERVER_PORT = 9999;
     private Label errorLabel = new Label();
     private final TextField serverHostField = new TextField("localhost");

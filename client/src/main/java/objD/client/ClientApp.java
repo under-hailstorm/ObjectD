@@ -7,8 +7,12 @@ import javafx.stage.Stage;
 import objD.client.states.ClientState;
 import objD.client.states.ConnectionState;
 import objD.protocol.server.ServerMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClientApp extends Application {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ClientApp.class);
 
     public static final String APP_NAME = "Cool app ";
     private Scene scene;
@@ -27,10 +31,11 @@ public class ClientApp extends Application {
     public void setCurrentState(ClientState state) {
         scene.setRoot(state.getRootPane());
         scene.getRoot().requestLayout();
+        currentState = state;
     }
 
     public void notifyState(ServerMessage o) {
-        System.out.println("notify " + currentState.getClass().getCanonicalName() + " with " + o.getClass().getCanonicalName());
+        LOG.debug("notify " + currentState.getClass().getCanonicalName() + " with " + o.getClass().getCanonicalName());
         currentState.updatePane(o);
     }
 
@@ -63,6 +68,7 @@ public class ClientApp extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        LOG.debug("starting client app...");
         launch(args);
     }
 }

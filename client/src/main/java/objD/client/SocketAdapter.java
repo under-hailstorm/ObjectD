@@ -18,8 +18,8 @@ public class SocketAdapter {
 
     public SocketAdapter(Socket clientSocket, ObjectInputStream is, ObjectOutputStream os) throws IOException {
         this.clientSocket = clientSocket;
-        this.is = is; // new ObjectInputStream(clientSocket.getInputStream());
-        this.os = os; // new ObjectOutputStream(clientSocket.getOutputStream());
+        this.is = is;
+        this.os = os;
     }
 
     public ServerMessage readObject() throws IOException, ClassNotFoundException {

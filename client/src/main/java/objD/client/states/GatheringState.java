@@ -23,11 +23,15 @@ import objD.protocol.client.ToTeam2;
 
 import objD.protocol.server.ServerMessage;
 import objD.protocol.server.StartOk;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
 
 public class GatheringState implements ClientState {
+
+    private static final Logger LOG = LoggerFactory.getLogger(GatheringState.class);
 
     public static final double DEFAULT_WIDTH = 600;
     public static final double DEFAULT_HEIGHT = 600;
@@ -145,7 +149,7 @@ public class GatheringState implements ClientState {
             }
         }
         if (fromServer instanceof StartOk) {
-            System.out.println("getting StartOk");
+            LOG.debug("getting StartOk");
             StartedState startedState = new StartedState(clientApp, socketAdapter);
             clientApp.setCurrentState(startedState);
         }

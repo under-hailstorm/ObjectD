@@ -4,11 +4,19 @@ import javafx.scene.Group;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Polyline;
 import objD.client.ClientApp;
+import objD.client.HexagonHelper;
 import objD.client.SocketAdapter;
 import objD.protocol.server.ServerMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 public class StartedState implements ClientState {
+
+    private static final Logger LOG = LoggerFactory.getLogger(StartedState.class);
 
     private final ClientApp clientApp;
     private final SocketAdapter socketAdapter;
@@ -20,14 +28,10 @@ public class StartedState implements ClientState {
         this.socketAdapter = socketAdapter;
 
 
-        Polygon polygon = new Polygon();
-        polygon.getPoints().addAll(new Double[]{
-                0.0, 0.0,
-                20.0, 10.0,
-                10.0, 20.0});
+        List<Polyline> hexagonGrid = HexagonHelper.getHexagonGrid(50, 50, 30, 7, 3);
 
 
-        desk.getChildren().add(polygon);
+        desk.getChildren().addAll(hexagonGrid);
 
         pane.add(desk, 0, 0);
     }
