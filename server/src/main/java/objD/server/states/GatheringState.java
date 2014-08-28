@@ -1,13 +1,12 @@
 package objD.server.states;
 
+import objD.model.GMapFactory;
 import objD.protocol.client.*;
 import objD.protocol.server.*;
-import objD.server.ClientManager;
-import objD.server.SocketAdapter;
-import objD.server.ListenClientThread;
-import objD.server.ServerApp;
+import objD.server.*;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -23,48 +22,8 @@ public class GatheringState implements ServerState {
     }
 
     @Override
-    public void addNewClient(SocketAdapter socketAdapter) {
-        Object o;
-        try {
-            o = socketAdapter.readObject();
-        } catch (IOException | ClassNotFoundException ex) {
-            System.out.println("exc when creating i/o streams");
-            ex.printStackTrace();
-            return;
-        }
-
-
-        if (o instanceof HelloServer) {
-            HelloServer hello = (HelloServer) o;
-            String clientName = hello.getClientName();
-            ClientManager clientManager = serverApp.getClientManager();
-            try {
-                if (clientManager.containsName(clientName)) {
-                    socketAdapter.writeObject(new ConnectionRefused("Player with name " + clientName + " is already logged in"));
-                    socketAdapter.close();
-                    return;
-                }
-
-            } catch (IOException ex) {
-                return;
-            }
-
-            ListenClientThread clientThread = new ListenClientThread(socketAdapter, serverApp);
-
-            clientThread.setClientName(clientName);
-            clientManager.addToLowTeam(clientThread);
-            clientThread.start();
-            System.out.println("Start " + clientName + " thread");
-
-        } else {
-            System.out.println("Expecting HelloServer, but found " + o.getClass().getCanonicalName());
-            System.out.println("closing connection");
-            try {
-                socketAdapter.close();
-            } catch (IOException ex) {
-            }
-        }
-
+    public void addNewClient(ClientData clientData) {
+        serverApp.getClientsManager().addToLowTeam(clientData);
     }
 
     @Override
@@ -75,25 +34,27 @@ public class GatheringState implements ServerState {
         for (int i = 0; i < size; i++) {
             toProcess.add(actionsQueue.poll());
         }
-        ClientManager clientManager = serverApp.getClientManager();
+        ClientsManager clientsManager = serverApp.getClientsManager();
         for (ClientMessage message : toProcess) {
             System.out.println("Processing message of type " + message.getClass().getCanonicalName());
             if (message instanceof ToObservers) {
-                clientManager.moveToObservers(message.getClientName());
+                clientsManager.moveToObservers(message.getClientName());
             }
             if (message instanceof ToTeam1) {
-                clientManager.moveToTeam1(message.getClientName());
+                clientsManager.moveToTeam1(message.getClientName());
             }
             if (message instanceof ToTeam2) {
-                clientManager.moveToTeam2(message.getClientName());
+                clientsManager.moveToTeam2(message.getClientName());
             }
             if (message instanceof StartRequest) {
-                StartedState startedState = new StartedState(serverApp);
+                InputStream mapIs = getClass().getResourceAsStream("/default.map");
+                GMapFactory factory = new GMapFactory();
+                StartedState startedState = new StartedState(serverApp, factory.load(mapIs));
                 serverApp.setServerState(startedState);
                 return new StartOk();
             }
         }
-        GatheringContext currentContext = clientManager.toGatheringContext();
+        GatheringContext currentContext = clientsManager.toGatheringContext();
         if (currentContext.equals(cachedContext)) {
             return new NullServerMessage();
         } else {

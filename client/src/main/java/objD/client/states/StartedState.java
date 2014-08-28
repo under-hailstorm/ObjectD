@@ -8,6 +8,7 @@ import javafx.scene.shape.Polyline;
 import objD.client.ClientApp;
 import objD.client.HexagonHelper;
 import objD.client.SocketAdapter;
+import objD.client.ui.Tank;
 import objD.protocol.server.ServerMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +29,12 @@ public class StartedState implements ClientState {
         this.socketAdapter = socketAdapter;
 
 
-        List<Polyline> hexagonGrid = HexagonHelper.getHexagonGrid(50, 50, 30, 7, 3);
-
+        List<Polyline> hexagonGrid = HexagonHelper.getHexagonGrid(50, 50, 30, 7, 6);
+        Tank tank = new Tank();
 
         desk.getChildren().addAll(hexagonGrid);
+
+        desk.getChildren().add(tank);
 
         pane.add(desk, 0, 0);
     }

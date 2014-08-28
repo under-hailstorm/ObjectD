@@ -18,11 +18,11 @@ public class ServerApp {
     private ServerState serverState;
     private Queue<ClientMessage> actionsQueue = new ConcurrentLinkedQueue<>();
 
-    private ClientManager clientManager = new ClientManager();
+    private ClientsManager clientsManager = new ClientsManager();
 
 
-    public ClientManager getClientManager() {
-        return clientManager;
+    public ClientsManager getClientsManager() {
+        return clientsManager;
     }
 
     public int getPort() {
@@ -61,7 +61,7 @@ public class ServerApp {
             public void run() {
                 ServerMessage serverMessage = server.serverState.processActions();
                 if (!(serverMessage instanceof NullServerMessage)) {
-                    server.clientManager.notifyAllSubscribers(serverMessage);
+                    server.clientsManager.notifyAllSubscribers(serverMessage);
                 }
 
             }
@@ -69,14 +69,14 @@ public class ServerApp {
     }
 
 
-    public synchronized void addNewClient(SocketAdapter socketAdapter) {
-        serverState.addNewClient(socketAdapter);
-        clientManager.notifyAllSubscribers(clientManager.toGatheringContext());
+    public synchronized void addNewClient(ClientData clientData) {
+        serverState.addNewClient(clientData);
+        clientsManager.notifyAllSubscribers(clientsManager.toGatheringContext());
     }
 
     public synchronized void removeClient(String clientName) {
-        clientManager.removeClient(clientName);
-        clientManager.notifyAllSubscribers(clientManager.toGatheringContext());
+        clientsManager.removeClient(clientName);
+        clientsManager.notifyAllSubscribers(clientsManager.toGatheringContext());
     }
 
 }

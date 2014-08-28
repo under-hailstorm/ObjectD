@@ -1,0 +1,24 @@
+{
+  'size': {
+    'height': 7,
+    'width': 8,
+  },
+  'respawn':[
+    {
+     'team': 1,
+     'row': 0,
+     'col': 0,
+    },
+    {
+     'team': 2,
+     'row': 4,
+     'col': 3,
+    },
+  ],
+  'wall':[
+   {
+    'row':1,
+    'col':2,
+   }
+  ]
+}
