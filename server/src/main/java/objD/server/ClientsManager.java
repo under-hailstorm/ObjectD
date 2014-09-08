@@ -1,5 +1,7 @@
 package objD.server;
 
+import objD.model.Tank;
+import objD.model.Teams;
 import objD.protocol.server.GatheringContext;
 import objD.protocol.server.ServerMessage;
 import org.slf4j.Logger;
@@ -26,6 +28,16 @@ public class ClientsManager {
             }
         }
         return false;
+    }
+
+    public List<Tank> buildAllTanks() {
+        List<Tank> result = new ArrayList<>();
+        for (ClientData client : allClients) {
+            if (client.getTeam() != Teams.OBSERVERS) {
+                result.add(client.buildTank());
+            }
+        }
+        return result;
     }
 
     public void addToObservers(ClientData client) {

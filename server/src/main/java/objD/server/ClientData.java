@@ -1,5 +1,8 @@
 package objD.server;
 
+import objD.model.Tank;
+import objD.model.TankBuilder;
+import objD.model.Teams;
 import objD.protocol.server.ServerMessage;
 
 import java.io.IOException;
@@ -30,6 +33,13 @@ public class ClientData {
         this.socket = socket;
     }
 
+    public Tank buildTank() {
+        TankBuilder builder = new TankBuilder();
+        return builder.
+                withClientName(clientName).
+                withTeam(team).
+                build();
+    }
 
     public void notifyModified(ServerMessage message) throws IOException {
         os.writeObject(message);

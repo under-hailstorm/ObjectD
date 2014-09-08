@@ -4,15 +4,15 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class RespawnPoint extends BaseMapEntry {
-    private final int teamId;
+    private final Teams team;
 
-    public RespawnPoint(int x, int y, int teamId) {
+    public RespawnPoint(int x, int y, Teams teamId) {
         super(x, y);
-        this.teamId = teamId;
+        this.team = teamId;
     }
 
-    public int getTeamId() {
-        return teamId;
+    public Teams getTeam() {
+        return team;
     }
 
     @Override
@@ -20,7 +20,7 @@ public class RespawnPoint extends BaseMapEntry {
         return new HashCodeBuilder(17, 37).
                 append(rowNum).
                 append(colNum).
-                append(teamId).
+                append(team).
                 toHashCode();
     }
 
@@ -37,7 +37,7 @@ public class RespawnPoint extends BaseMapEntry {
         return new EqualsBuilder()
                 .append(rowNum, that.rowNum)
                 .append(colNum, that.colNum)
-                .append(teamId, that.teamId)
+                .append(team, that.team)
                 .isEquals();
     }
 }

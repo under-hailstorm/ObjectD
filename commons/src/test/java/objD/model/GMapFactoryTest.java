@@ -20,8 +20,8 @@ public class GMapFactoryTest {
         Assert.assertEquals(map.getColNum(), 8);
 
 
-        Assert.assertEquals(map.getEntry(0, 0), new RespawnPoint(0, 0, 1));
-        Assert.assertEquals(map.getEntry(4, 3), new RespawnPoint(4, 3, 2));
+        Assert.assertEquals(map.getEntry(0, 0), new RespawnPoint(0, 0, Teams.TEAM_1));
+        Assert.assertEquals(map.getEntry(4, 3), new RespawnPoint(4, 3, Teams.TEAM_2));
         Assert.assertEquals(map.getEntry(1, 2), new Wall(1, 2));
 
     }

@@ -9,24 +9,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 
-public class ListenClientThread extends Thread {
+public class ListenClient implements Runnable {
 
     private Map<Class, Long> timeFilter = new HashMap<>();
     private Map<Class, Long> lastPushed = new HashMap<>();
-    private boolean needStop = false;
+
     private final String clientName;
     private final ObjectInputStream is;
     private final Queue<ClientMessage> outputQueue;
 
-    public void setNeedStop(boolean needStop) {
-        this.needStop = needStop;
-    }
 
-    public String getClientName() {
-        return clientName;
-    }
-
-    public ListenClientThread(String clientName, ObjectInputStream is, Queue<ClientMessage> outputQueue) {
+    public ListenClient(String clientName, ObjectInputStream is, Queue<ClientMessage> outputQueue) {
         this.clientName = clientName;
         this.is = is;
         this.outputQueue = outputQueue;
@@ -35,7 +28,7 @@ public class ListenClientThread extends Thread {
     @Override
     public void run() {
         try {
-            while (!needStop) {
+            while (true) {
                 ClientMessage clientMessage = (ClientMessage) is.readObject();
                 Class actionType = clientMessage.getClass();
                 Long lastPush = lastPushed.get(actionType);
@@ -50,7 +43,9 @@ public class ListenClientThread extends Thread {
             e.printStackTrace();
         } finally {
             System.out.println("Exiting client " + clientName);
-            outputQueue.add(new Disconnect());
+            Disconnect messDisconnect = new Disconnect();
+            messDisconnect.setClientName(clientName);
+            outputQueue.add(messDisconnect);
             try {
                 is.close();
             } catch (IOException e) {

@@ -30,12 +30,9 @@ public class GatheringState implements ServerState {
     public ServerMessage processActions() {
         Queue<ClientMessage> actionsQueue = serverApp.getActionsQueue();
         int size = actionsQueue.size();
-        List<ClientMessage> toProcess = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            toProcess.add(actionsQueue.poll());
-        }
         ClientsManager clientsManager = serverApp.getClientsManager();
-        for (ClientMessage message : toProcess) {
+        for (int i = 0; i < size; i++) {
+            ClientMessage message = actionsQueue.poll();
             System.out.println("Processing message of type " + message.getClass().getCanonicalName());
             if (message instanceof ToObservers) {
                 clientsManager.moveToObservers(message.getClientName());
@@ -45,6 +42,9 @@ public class GatheringState implements ServerState {
             }
             if (message instanceof ToTeam2) {
                 clientsManager.moveToTeam2(message.getClientName());
+            }
+            if (message instanceof Disconnect) {
+                clientsManager.removeClient(message.getClientName());
             }
             if (message instanceof StartRequest) {
                 InputStream mapIs = getClass().getResourceAsStream("/default.map");

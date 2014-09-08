@@ -1,6 +1,7 @@
 package objD.server.states;
 
 import objD.model.GMap;
+import objD.model.Tank;
 import objD.protocol.client.HelloServer;
 import objD.protocol.server.ConnectionRefused;
 import objD.protocol.server.MapUpdate;
@@ -8,6 +9,7 @@ import objD.protocol.server.ServerMessage;
 import objD.server.*;
 
 import java.io.IOException;
+import java.util.List;
 
 public class StartedState implements ServerState {
 
@@ -21,9 +23,10 @@ public class StartedState implements ServerState {
 
         this.clientsManager = serverApp.getClientsManager();
         //spawn tanks for teams
-//        for(ListenClientThread thread: clientsManager.){
-//
-//        }
+        List<Tank> tanks = clientsManager.buildAllTanks();
+        for (Tank tank : tanks) {
+            gMap.spawnTank(tank);
+        }
     }
 
     @Override

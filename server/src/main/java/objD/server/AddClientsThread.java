@@ -11,15 +11,20 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class AddClientsThread extends Thread {
 
     private static final Logger LOG = LoggerFactory.getLogger(AddClientsThread.class);
 
     private final ServerApp serverApp;
+    private final ExecutorService clientThreads;
+
 
     public AddClientsThread(ServerApp serverContext) {
         this.serverApp = serverContext;
+        clientThreads = Executors.newCachedThreadPool();
     }
 
     public void run() {
@@ -50,8 +55,9 @@ public class AddClientsThread extends Thread {
                         } else {
                             serverApp.addNewClient(new ClientData(clientName, os, clientSocket));
 
-                            ListenClientThread clientThread = new ListenClientThread(clientName, is, serverApp.getActionsQueue());
-                            clientThread.start();
+                            ListenClient clientThread = new ListenClient(clientName, is, serverApp.getActionsQueue());
+                            clientThreads.submit(clientThread);
+
                             LOG.info("add new client " + clientName);
                         }
                     } else {

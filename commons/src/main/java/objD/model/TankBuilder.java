@@ -1,18 +1,20 @@
 package objD.model;
 
 public class TankBuilder {
+    private static final double DEFAULT_MOVEMENT_SPEED = 10;
+    private static final double DEFAULT_ROTATION_SPEED = 10;
     private String clientName;
-    private int teamId;
-    private double movementSpeed;
-    private double rotationSpeed;
+    private Teams team;
+    private double movementSpeed = DEFAULT_MOVEMENT_SPEED;
+    private double rotationSpeed = DEFAULT_ROTATION_SPEED;
 
     public TankBuilder withClientName(String name) {
         this.clientName = name;
         return this;
     }
 
-    public TankBuilder withTeamId(int id) {
-        this.teamId = id;
+    public TankBuilder withTeam(Teams team) {
+        this.team = team;
         return this;
     }
 
@@ -28,7 +30,7 @@ public class TankBuilder {
     }
 
     public Tank build() {
-        Tank result = new Tank(clientName, teamId);
+        Tank result = new Tank(clientName, team);
         result.setMovementSpeed(movementSpeed);
         result.setRotationSpeed(rotationSpeed);
         return result;
@@ -36,8 +38,8 @@ public class TankBuilder {
 
     public void reset() {
         clientName = null;
-        teamId = 0;
-        movementSpeed = 0;
-        rotationSpeed = 0;
+        team = null;
+        movementSpeed = DEFAULT_MOVEMENT_SPEED;
+        rotationSpeed = DEFAULT_ROTATION_SPEED;
     }
 }

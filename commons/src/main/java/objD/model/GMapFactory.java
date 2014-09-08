@@ -27,7 +27,7 @@ public class GMapFactory {
                 JSONObject resp = respawns.getJSONObject(i);
                 int row = resp.getInt("row");
                 int col = resp.getInt("col");
-                int team = resp.getInt("team");
+                Teams team = Teams.valueOf(resp.getString("team"));
 
                 result.addEntry(new RespawnPoint(row, col, team));
             }

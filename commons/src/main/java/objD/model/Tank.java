@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class Tank implements Serializable {
     private final String clientName;
-    private final int teamId;
+    private final Teams team;
     private double movementSpeed;
     private double rotationSpeed;
 
@@ -12,10 +12,19 @@ public class Tank implements Serializable {
     private long rotationStartTime;
     private MovementDirection movementDirection;
     private RotationDirection rotationDirection;
+    private MapEntry currentLocation;
 
-    public Tank(String clientName, int teamId) {
+    public Tank(String clientName, Teams team) {
         this.clientName = clientName;
-        this.teamId = teamId;
+        this.team = team;
+    }
+
+    public MapEntry getCurrentLocation() {
+        return currentLocation;
+    }
+
+    public void setCurrentLocation(MapEntry currentLocation) {
+        this.currentLocation = currentLocation;
     }
 
     public long getMovementStartTime() {
@@ -54,8 +63,8 @@ public class Tank implements Serializable {
         return clientName;
     }
 
-    public int getTeamId() {
-        return teamId;
+    public Teams getTeam() {
+        return team;
     }
 
     public double getMovementSpeed() {
