@@ -10,7 +10,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class SocketAdapter {
-
+    private int resetCounter;
     private final ObjectInputStream is;
     private final ObjectOutputStream os;
 
@@ -29,6 +29,10 @@ public class SocketAdapter {
     public void writeObject(ClientMessage message) throws IOException {
         os.writeObject(message);
         os.flush();
+        resetCounter++;
+        if (resetCounter % 1000 == 0) {
+            os.reset();
+        }
     }
 
     public void close() throws IOException {

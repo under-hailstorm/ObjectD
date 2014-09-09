@@ -3,12 +3,13 @@ package objD.client.states;
 import javafx.scene.Group;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Polyline;
 import objD.client.ClientApp;
 import objD.client.HexagonHelper;
 import objD.client.SocketAdapter;
-import objD.client.ui.Tank;
+import objD.client.ui.UITank;
+import objD.model.GMap;
+import objD.protocol.server.FullMap;
 import objD.protocol.server.ServerMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,7 @@ public class StartedState implements ClientState {
 
 
         List<Polyline> hexagonGrid = HexagonHelper.getHexagonGrid(50, 50, 30, 7, 6);
-        Tank tank = new Tank();
+        UITank tank = new UITank();
 
         desk.getChildren().addAll(hexagonGrid);
 
@@ -48,6 +49,8 @@ public class StartedState implements ClientState {
 
     @Override
     public void updatePane(ServerMessage fromServer) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        if(fromServer instanceof FullMap){
+            GMap map = ((FullMap) fromServer).getMap();
+        }
     }
 }

@@ -10,6 +10,7 @@ public class Tank implements Serializable {
 
     private long movementStartTime;
     private long rotationStartTime;
+    private MapDirection headDirection;
     private MovementDirection movementDirection;
     private RotationDirection rotationDirection;
     private MapEntry currentLocation;
@@ -17,6 +18,14 @@ public class Tank implements Serializable {
     public Tank(String clientName, Teams team) {
         this.clientName = clientName;
         this.team = team;
+    }
+
+    public MapDirection getHeadDirection() {
+        return headDirection;
+    }
+
+    public void setHeadDirection(MapDirection headDirection) {
+        this.headDirection = headDirection;
     }
 
     public MapEntry getCurrentLocation() {

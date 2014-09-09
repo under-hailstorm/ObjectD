@@ -10,6 +10,11 @@ public class GMap implements Serializable {
 
     public GMap(int rowNum, int columnNum) {
         this.entries = new MapEntry[rowNum][columnNum];
+        for (int i = 0; i < rowNum; i++) {
+            for (int j = 0; j < columnNum; j++) {
+                entries[i][j] = new EmptyEntry(i, j);
+            }
+        }
     }
 
     public int getRowNum() {
@@ -22,8 +27,8 @@ public class GMap implements Serializable {
 
     public MapEntry getEntry(int rowNum, int colNum) {
         int maxCol = entries[0].length;
-        if (rowNum % 2 == 0 && colNum == maxCol - 1) {
-            throw new ArrayIndexOutOfBoundsException("Even row has one cell less");
+        if (rowNum % 2 == 1 && colNum == maxCol - 1) {
+            throw new ArrayIndexOutOfBoundsException("Odd row has one cell less");
         }
         return entries[rowNum][colNum];
     }
@@ -44,13 +49,82 @@ public class GMap implements Serializable {
         int index = new Random().nextInt(respawnPoints.size());
         RespawnPoint point = respawnPoints.get(index);
         tank.setCurrentLocation(point);
+        tank.setHeadDirection(MapDirection.NORTH);
         allTanks.add(tank);
     }
 
-    public boolean canMoveForward(Tank tank){
+    public MapEntry getClosestEntry(MapEntry currentLocation, MapDirection direction) {
+        int colNum = currentLocation.getColNum();
+        int rowNum = currentLocation.getRowNum();
+        if (rowNum < 0 || rowNum >= entries.length) {
+            throw new ArrayIndexOutOfBoundsException("incorrect row num " + rowNum);
+        }
+        if (colNum < 0 || colNum >= entries[0].length) {
+            throw new ArrayIndexOutOfBoundsException("incorrect column num " + colNum);
+        }
+        if (rowNum % 2 == 1 && colNum == entries[0].length - 1) {
+            throw new ArrayIndexOutOfBoundsException("Odd row has one cell less");
+        }
 
-
-        return false;
+        switch (direction) {
+            case NORTH:
+                if (rowNum > 1) {
+                    return entries[rowNum - 2][colNum];
+                }
+                return null;
+            case NORTH_EAST:
+                if (rowNum % 2 == 0) {
+                    if (rowNum > 0 && colNum < entries[0].length - 1) {
+                        return entries[rowNum - 1][colNum];
+                    } else {
+                        return null;
+                    }
+                } else {
+                    return entries[rowNum - 1][colNum + 1];
+                }
+            case NORTH_WEST:
+                if (rowNum % 2 == 0) {
+                    if (rowNum > 0 && colNum > 0) {
+                        return entries[rowNum - 1][colNum - 1];
+                    } else {
+                        return null;
+                    }
+                } else {
+                    return entries[rowNum - 1][colNum];
+                }
+            case SOUTH:
+                if (rowNum < entries.length - 2) {
+                    return entries[rowNum + 2][colNum];
+                }
+                return null;
+            case SOUTH_EAST:
+                if (rowNum == entries.length - 1) {
+                    return null;
+                }
+                if (rowNum % 2 == 0) {
+                    if (colNum < entries[0].length - 1) {
+                        return entries[rowNum + 1][colNum];
+                    } else {
+                        return null;
+                    }
+                } else {
+                    return entries[rowNum + 1][colNum + 1];
+                }
+            case SOUTH_WEST:
+                if (rowNum == entries.length - 1) {
+                    return null;
+                }
+                if (rowNum % 2 == 0) {
+                    if (colNum > 0) {
+                        return entries[rowNum + 1][colNum - 1];
+                    } else {
+                        return null;
+                    }
+                } else {
+                    return entries[rowNum + 1][colNum];
+                }
+        }
+        return null;
     }
 
     public String toString() {

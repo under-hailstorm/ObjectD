@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class ClientData {
+    private int resetCounter;
     private final String clientName;
     private final ObjectOutputStream os;
     private final Socket socket;
@@ -44,5 +45,9 @@ public class ClientData {
     public void notifyModified(ServerMessage message) throws IOException {
         os.writeObject(message);
         os.flush();
+        resetCounter++;
+        if (resetCounter % 1000 == 0) {
+            os.reset();
+        }
     }
 }
