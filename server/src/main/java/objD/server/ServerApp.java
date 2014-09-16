@@ -29,11 +29,6 @@ public class ServerApp {
         return port;
     }
 
-    public void addAction(ClientMessage clientMessage, String clientName) {
-        clientMessage.setClientName(clientName);
-        actionsQueue.add(clientMessage);
-    }
-
     public Queue<ClientMessage> getActionsQueue() {
         return actionsQueue;
     }

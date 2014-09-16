@@ -51,7 +51,7 @@ public class GatheringState implements ClientState {
 
     private final Button startButton = new Button();
 
-    public GatheringState(ClientApp clientApp, SocketAdapter socketAdapter) throws IOException {
+    public GatheringState(ClientApp clientApp, SocketAdapter socketAdapter, GatheringContext ctx) throws IOException {
         this.clientApp = clientApp;
         this.socketAdapter = socketAdapter;
 
@@ -86,6 +86,8 @@ public class GatheringState implements ClientState {
 
         pane.add(startText, 3, 1);
         pane.add(startButton, 3, 2);
+
+        applyGatheringContext(ctx);
     }
 
     private TableView aTable(String name) {
@@ -111,47 +113,51 @@ public class GatheringState implements ClientState {
         return pane;
     }
 
-    @Override
-    public void updatePane(ServerMessage fromServer) {
-
-        if (fromServer instanceof GatheringContext) {
-
-            GatheringContext ctx = (GatheringContext) fromServer;
-
-            final ObservableList<ClientData> team1Members = toObservableList(ctx.getTeam1());
-            final ObservableList<ClientData> team2Members = toObservableList(ctx.getTeam2());
-            final ObservableList<ClientData> obsMembers = toObservableList(ctx.getObservers());
+    private void applyGatheringContext(GatheringContext ctx){
+        final ObservableList<ClientData> team1Members = toObservableList(ctx.getTeam1());
+        final ObservableList<ClientData> team2Members = toObservableList(ctx.getTeam2());
+        final ObservableList<ClientData> obsMembers = toObservableList(ctx.getObservers());
 
 
-            team1.setItems(team1Members);
-            team2.setItems(team2Members);
-            observers.setItems(obsMembers);
+        team1.setItems(team1Members);
+        team2.setItems(team2Members);
+        observers.setItems(obsMembers);
 
-            toTeam1.setDisable(false);
-            for (ClientData clientData : team1Members) {
-                if (clientData.getName().equals(clientApp.getClientName())) {
-                    toTeam1.setDisable(true);
-                }
-            }
-
-            toTeam2.setDisable(false);
-            for (ClientData clientData : team2Members) {
-                if (clientData.getName().equals(clientApp.getClientName())) {
-                    toTeam2.setDisable(true);
-                }
-            }
-
-            toObservers.setDisable(false);
-            for (ClientData clientData : obsMembers) {
-                if (clientData.getName().equals(clientApp.getClientName())) {
-                    toObservers.setDisable(true);
-                }
+        toTeam1.setDisable(false);
+        for (ClientData clientData : team1Members) {
+            if (clientData.getName().equals(clientApp.getClientName())) {
+                toTeam1.setDisable(true);
             }
         }
-        if (fromServer instanceof StartOk) {
-            LOG.debug("getting StartOk");
-            StartedState startedState = new StartedState(clientApp, socketAdapter);
-            clientApp.setCurrentState(startedState);
+
+        toTeam2.setDisable(false);
+        for (ClientData clientData : team2Members) {
+            if (clientData.getName().equals(clientApp.getClientName())) {
+                toTeam2.setDisable(true);
+            }
+        }
+
+        toObservers.setDisable(false);
+        for (ClientData clientData : obsMembers) {
+            if (clientData.getName().equals(clientApp.getClientName())) {
+                toObservers.setDisable(true);
+            }
+        }
+    }
+
+    @Override
+    public void updatePane() {
+        ServerMessage fromServer;
+        while ((fromServer = clientApp.getActionsQueue().poll()) != null) {
+            if (fromServer instanceof GatheringContext) {
+                applyGatheringContext((GatheringContext) fromServer);
+            }
+            if (fromServer instanceof StartOk) {
+                LOG.debug("getting StartOk");
+                StartedState startedState = new StartedState(clientApp, socketAdapter);
+                clientApp.setCurrentState(startedState);
+                return;
+            }
         }
     }
 

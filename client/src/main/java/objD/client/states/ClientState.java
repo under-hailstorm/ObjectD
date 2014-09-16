@@ -7,5 +7,5 @@ public interface ClientState {
 
     Pane getRootPane();
 
-    void updatePane(ServerMessage fromServer);
+    void updatePane();
 }

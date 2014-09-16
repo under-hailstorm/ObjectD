@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Queue;
 
 public class ConnectionState implements ClientState {
 
@@ -76,23 +77,28 @@ public class ConnectionState implements ClientState {
     }
 
     @Override
-    public void updatePane(ServerMessage fromServer) {
-        if (fromServer instanceof ConnectionRefused) {
-            final ConnectionRefused cr = (ConnectionRefused) fromServer;
-            errorLabel.setText(cr.getReason() + " Default port is " + DEFAULT_SERVER_PORT);
-        }
-        if (fromServer instanceof GatheringContext) {
-            try {
-                GatheringState gathering = new GatheringState(clientApp, socketAdapter);
-                gathering.updatePane(fromServer);
-                clientApp.setTitle(ClientApp.APP_NAME + " " + nameField.getText());
-                clientApp.setClientName(nameField.getText());
-                clientApp.setWindowSize(GatheringState.DEFAULT_WIDTH, GatheringState.DEFAULT_HEIGHT);
-                clientApp.setCurrentState(gathering);
-            } catch (IOException e) {
-                e.printStackTrace();
+    public void updatePane() {
+        Queue<ServerMessage> actionsQueue = clientApp.getActionsQueue();
+        ServerMessage fromServer;
+        while ((fromServer = actionsQueue.poll()) != null) {
+            if (fromServer instanceof ConnectionRefused) {
+                final ConnectionRefused cr = (ConnectionRefused) fromServer;
+                errorLabel.setText(cr.getReason() + " Default port is " + DEFAULT_SERVER_PORT);
+            }
+            if (fromServer instanceof GatheringContext) {
+                try {
+                    GatheringState gathering = new GatheringState(clientApp, socketAdapter, (GatheringContext) fromServer);
+                    clientApp.setTitle(ClientApp.APP_NAME + " " + nameField.getText());
+                    clientApp.setClientName(nameField.getText());
+                    clientApp.setWindowSize(GatheringState.DEFAULT_WIDTH, GatheringState.DEFAULT_HEIGHT);
+                    clientApp.setCurrentState(gathering);
+                    return;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
+
     }
 
     private Label aLabel(String text) {
